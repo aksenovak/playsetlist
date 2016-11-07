@@ -1,0 +1,29 @@
+{
+  "name": "playsetlist",
+  "version": "1.0.0",
+  "description": "Listen set-list's of your favorites bands, when they on tour.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aksenovak/playsetlist.git"
+  },
+  "keywords": [
+    "setlist",
+    "playlist",
+    "tour"
+  ],
+  "author": "Anton Aksenov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aksenovak/playsetlist/issues"
+  },
+  "homepage": "https://github.com/aksenovak/playsetlist#readme",
+  "dependencies": {
+    "express": "latest",
+    "express-handlebars": "latest",
+    "path":"latest"
+  }
+}
