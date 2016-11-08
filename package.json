@@ -25,6 +25,7 @@
     "express": "latest",
     "express-handlebars": "latest",
     "path":"latest",
-    "request": "latest"
+    "request": "latest",
+    "youtube-node": "latest"
   }
 }
