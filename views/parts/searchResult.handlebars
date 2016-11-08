@@ -1,0 +1,48 @@
+{{#each setlists}}
+
+    {{#if sets }}
+        <div class="set-list-container">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading{{"@id"}}">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#setlist{{"@id"}}" aria-expanded="true" aria-controls="{{"@id"}}">
+                                {{#if artist}}
+                                    <span><b>Artist:&nbsp;</b>{{lookup artist "@name" }}</span>
+                                {{/if}}
+                                <span><b>Date:&nbsp;</b>{{ "@eventDate" }}</span>
+                                {{#if '@tour' }}
+                                    <span><b>Tour:&nbsp;</b>{{ '@tour' }}</span>
+                                {{/if}}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="setlist{{"@id"}}" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="heading{{"@id"}}">
+                        <div class="panel-body">
+                            <ul>
+                                {{#if sets.set.length}}
+                                    {{#each sets.set}}
+                                        {{#if song.length}}
+                                            {{#each song }}
+                                                <li>{{ "@name" }}</li>
+                                            {{/each}}
+                                        {{else}}
+                                            <li>{{lookup song "@name" }}</li>
+                                        {{/if}}
+                                    {{/each}}
+                                {{else}}
+                                    {{#each sets }}
+                                        {{#each song }}
+                                            <li>{{ "@name" }}</li>
+                                        {{/each}}
+                                    {{/each}}
+                                {{/if}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/if}}
+
+{{/each}}
