@@ -96,4 +96,10 @@ app.get('/get-playlist',  function (req, res) {
     }
 });
 
-app.listen(3000);
+// app.listen(3000);
+
+if (!module.parent) {
+    var port = process.env.PORT || 3000;
+    app.listen(port);
+    console.log('Express started on port 3000');
+}
