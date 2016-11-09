@@ -2,25 +2,26 @@ var express = require('express'),
     path = require('path'),
     request = require('request'),
     YouTube = require('youtube-node'),
-    exp_hbs  = require('express-handlebars'),
+    // exp_hbs  = require('express-handlebars'),
     app = express(),
-    hbs = exp_hbs.create({
-        defaultLayout: 'main'
-    }),
+    // hbs = exp_hbs.create({
+    //     defaultLayout: 'main'
+    // }),
     yt_key = 'AIzaSyBJAxhVEZPvj8pkzBPWXwerut3GwRfz3ZY';
 
-app.engine('handlebars', hbs.engine);
-app.set('view engine', 'handlebars');
+// app.engine('handlebars', hbs.engine);
+// app.set('view engine', 'handlebars');
 
-app.set('port', (process.env.PORT || 5000));
+app.set('port', (process.env.PORT || 3000));
 
 app.use('/bootstrap', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/')));
 app.use('/bootstrap-material', express.static(path.join(__dirname, '/node_modules/bootstrap-material-design/dist/')));
 app.use('/jquery', express.static(path.join(__dirname, '/node_modules/jquery/dist/')));
 app.use('/assets', express.static(path.join(__dirname, '/assets/')));
+app.use(express.static(path.join(__dirname, '/views/')));
 
 app.get('/', function (req, res) {
-    res.render('index');
+    res.sendFile('index,html');
 });
 
 app.get('/get-setlist', function (req, res) {
@@ -32,9 +33,11 @@ app.get('/get-setlist', function (req, res) {
                 if(response_data.hasOwnProperty('setlists') && response_data.setlists.setlist.length > 0) {
                     var setlists = response_data.setlists.setlist;
 
-                    res.render('parts/searchResult.handlebars', {
-                        setlists:setlists,
-                        layout:false});
+                    res.send({setlists:setlists});
+
+                    // res.render('parts/searchResult.handlebars', {
+                    //     setlists:setlists,
+                    //     layout:false});
                 }
             } else {
                 if(response.statusCode === 404) {
@@ -96,11 +99,11 @@ app.get('/get-playlist',  function (req, res) {
     }
 });
 
-// app.listen(3000);
+app.listen(app.get('port'));
 
-app.listen(app.get('port'), function() {
-    console.log('Node app is running on port', app.get('port'));
-});
+// app.listen(app.get('port'), function() {
+//     console.log('Node app is running on port', app.get('port'));
+// });
 //
 // if (!module.parent) {
 //     var port = process.env.PORT || 3000;

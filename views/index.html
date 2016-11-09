@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap-material/css/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="/bootstrap-material/css/ripples.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <title>Play Set-list App</title>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center">Play Set-list App</h1>
+
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col-md-3">&nbsp;</div>
+            <div class="col-md-6">
+                <div class="form-group label-floating">
+                    <label class="control-label" for="bandNameInput">Enter band name</label>
+                    <div class="input-group">
+                        <input type="text" id="bandNameInput" class="form-control">
+                        <span class="input-group-btn">
+                    <button type="button" id="getSetlistBtn" class="btn btn-fab btn-fab-mini">
+                        <i class="material-icons">done</i>
+                    </button>
+                </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">&nbsp;</div>
+        </div>
+        <div id="listsWrap" class="row"></div>
+    </div>
+</div>
+
+<div id="alertsWrap"></div>
+
+<div id="mainLoader" class="hidden">
+    <img src="/assets/images/gears.gif" alt="loader">
+</div>
+
+<div id="playerWrap" class="hidden">
+    <a id="removePlayer" class="btn btn-danger btn-fab btn-fab-mini"><i class="material-icons">&#xE5CD;</i></a>
+    <div id="playerContainer"></div>
+</div>
+
+</body>
+
+<script type="text/javascript" src="/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/bootstrap-material/js/material.min.js"></script>
+<script type="text/javascript" src="/bootstrap-material/js/ripples.min.js"></script>
+<script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+
+</html>

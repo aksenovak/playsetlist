@@ -79,16 +79,9 @@ $(function () {
         $.when(getSetlistRequest(val)).then(
             function (res) {
                 loaderShow(false);
+                drawTemplate(res.setlists);
 
-                if(listsWrap.find('a.set-list-btn').length > 0) {
-                    listsWrap.find('a.set-list-btn').each(function () {
-                        $(this).off('click');
-                    });
-                }
-
-                listsWrap.html('');
-
-                renderSetlist(res);
+                // renderSetlist(res);
             },
             function (err) {
                 if(err.responseJSON.hasOwnProperty('error')) {
@@ -174,6 +167,123 @@ $(function () {
         listsWrap.html(template);
         listsWrap.on('click', 'a.set-list-btn', function (e) {
             e.preventDefault();
+            generatePlaylist($(this));
+        });
+    }
+
+    function drawTemplate(setlists) {
+        if(listsWrap.find('a.set-list-btn').length > 0) {
+            listsWrap.find('a.set-list-btn').each(function () {
+                $(this).off('click');
+            });
+        }
+
+        listsWrap.off('click');
+        listsWrap.html('');
+
+        var main_wrap = '';
+
+        $.each(setlists, function (i, setlist) {
+            if(setlist.hasOwnProperty('sets') && (typeof setlist.sets != 'string')) {
+                var setlist_id = setlist['@id'],
+                    event_date = '', tour = '', artist = '',
+                    setlist_tmp = '', heading_tmp = '',
+                    list_tmp = '';
+
+                if(setlist.hasOwnProperty('@eventDate') && setlist['@eventDate'] != '') {
+                    var ed_val = setlist['@eventDate'];
+
+                    event_date = '<span><b>Date:&nbsp;</b>'+ed_val+'</span>&nbsp;';
+                }
+
+                if(setlist.hasOwnProperty('@tour') && setlist['@tour'] != '') {
+                    var tour_val = setlist['@tour'];
+
+                    tour = '<span><strong>Tour:&nbsp;</strong>'+tour_val+'</span>&nbsp;';
+                }
+
+                if(setlist.hasOwnProperty('artist')) {
+                    if(setlist.artist.hasOwnProperty('@name') && setlist.artist['@name'] != '') {
+                        var artist_val = setlist.artist['@name'];
+
+                        artist = '<span><strong>Artist:&nbsp;</strong>'+artist_val+'</span>&nbsp;';
+                    }
+                }
+
+                if(setlist.sets.set.length > 0) {
+                    $.each(setlist.sets.set, function (st, set) {
+                        if(set.song.length > 0) {
+                            $.each(set.song, function (s, sng) {
+                                var name_val = sng['@name'];
+
+                                setlist_tmp += '<li data-song="'+name_val+'">'+name_val+'</li>';
+                            });
+                        } else {
+                            var name_v = set.song['@name'];
+
+                            setlist_tmp += '<li data-song="'+name_v+'">'+name_v+'</li>';
+                        }
+                    });
+
+                    setlist_tmp = '<ol>'+setlist_tmp+'</ol>';
+
+                    heading_tmp = '<div class="panel-heading" role="tab" id="heading'+setlist_id+'">' +
+                        '<h4 class="panel-title pull-left">' +
+                        '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#setlist'+setlist_id+'" aria-expanded="true" aria-controls="'+setlist_id+'">' +
+                        '' + artist + event_date + tour + '' +
+                        '</a>' +
+                        '</h4>' +
+                        '<a class="btn btn-danger btn-fab btn-fab-mini pull-right set-list-btn" data-setlist-wrap="#setlist'+setlist_id+'"><i class="material-icons">&#xE038;</i></a>' +
+                        '</div>';
+
+                    list_tmp = '<div id="setlist'+setlist_id+'" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="heading'+setlist_id+'">' +
+                        '<div class="panel-body">' + setlist_tmp + '</div>' +
+                        '</div>';
+
+                    main_wrap += '<div class="set-list-container">' +
+                        '<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">' +
+                        '<div class="panel panel-default">'+ heading_tmp + list_tmp +'</div></div></div>';
+
+                } else {
+                    if(setlist.sets.hasOwnProperty('set')) {
+                        if(setlist.sets.set.song.length > 0) {
+                            $.each(setlist.sets.set.song, function (ss, sng) {
+                                var name_val = sng['@name'];
+
+                                setlist_tmp += '<li data-song="'+name_val+'">'+name_val+'</li>';
+                            });
+
+                            setlist_tmp = '<ol>'+setlist_tmp+'</ol>';
+
+                            heading_tmp = '<div class="panel-heading" role="tab" id="heading'+setlist_id+'">' +
+                                '<h4 class="panel-title pull-left">' +
+                                '<a role="button" data-toggle="collapse" data-parent="#accordion" href="#setlist'+setlist_id+'" aria-expanded="true" aria-controls="'+setlist_id+'">' +
+                                '' + artist + event_date + tour + '' +
+                                '</a>' +
+                                '</h4>' +
+                                '<a class="btn btn-danger btn-fab btn-fab-mini pull-right set-list-btn" data-setlist-wrap="#setlist'+setlist_id+'"><i class="material-icons">&#xE038;</i></a>' +
+                                '</div>';
+
+                            list_tmp = '<div id="setlist'+setlist_id+'" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="heading'+setlist_id+'">' +
+                                '<div class="panel-body">' + setlist_tmp + '</div>' +
+                                '</div>';
+
+                            main_wrap += '<div class="set-list-container">' +
+                                '<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">' +
+                                '<div class="panel panel-default">'+ heading_tmp + list_tmp +'</div></div></div>';
+                        }
+                    }
+                }
+            }
+        });
+
+        listsWrap.html(main_wrap);
+        listsWrap.on('click', 'a.set-list-btn', function (e) {
+            e.preventDefault();
+
+            songs_array = [];
+            playlist = [];
+
             generatePlaylist($(this));
         });
     }
