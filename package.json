@@ -25,6 +25,9 @@
   },
   "homepage": "https://github.com/aksenovak/playsetlist#readme",
   "dependencies": {
+    "bootstrap": "3.3.7",
+    "bootstrap-material-design": "0.5.10",
+    "jquery": "3.1.1",
     "express": "4.14.0",
     "express-handlebars": "3.0.0",
     "path":"0.12.7",
