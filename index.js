@@ -12,7 +12,7 @@ var express = require('express'),
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
-
+app.set('port', (process.env.PORT || 5000));
 
 app.use('/bootstrap', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/')));
 app.use('/bootstrap-material', express.static(path.join(__dirname, '/node_modules/bootstrap-material-design/dist/')));
@@ -98,9 +98,13 @@ app.get('/get-playlist',  function (req, res) {
 
 // app.listen(3000);
 
-if (!module.parent) {
-    var port = process.env.PORT || 3000;
-    app.listen(port, '0.0.0.0', function(err) {
-        console.log("Started listening on %s", app.url);
-    });
-}
+app.listen(app.get('port'), function() {
+    console.log('Node app is running on port', app.get('port'));
+});
+//
+// if (!module.parent) {
+//     var port = process.env.PORT || 3000;
+//     app.listen(port, '0.0.0.0', function(err) {
+//         console.log("Started listening on %s", app.url);
+//     });
+// }
