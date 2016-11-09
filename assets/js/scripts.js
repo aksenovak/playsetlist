@@ -4,12 +4,19 @@ $(function () {
         listsWrap = $('#listsWrap'),
         removePlayer = $('#removePlayer'),
         playlist = [],
+        playlist_count = 0,
         songs_array = [],
         playerWrap = $('#playerWrap');
 
     $(document).ajaxStop(function () {
-        if(playlist.length > 0) {
+        if (playlist.length > 0) {
             renderPlayer(playlist);
+            loaderShow(false);
+        } else {
+            if (playlist_count > 0) {
+                renderAlert('Can\' find any song');
+            }
+
             loaderShow(false);
         }
     });
@@ -20,6 +27,7 @@ $(function () {
         $(playerWrap.find('#playerContainer')).remove();
 
         playlist = [];
+        playlist_count = 0;
 
         playerWrap.addClass('hidden').append('<div id="playerContainer"></div>');
     });
@@ -30,8 +38,10 @@ $(function () {
 
             var value = $.trim($(this).val());
 
-            if(value !== '') {
+            if (value !== '') {
                 getSetlists(value);
+            } else {
+                renderAlert('Enter band name');
             }
         }
     });
@@ -43,6 +53,8 @@ $(function () {
 
         if(value !== '') {
             getSetlists(value);
+        } else {
+            renderAlert('Enter band name');
         }
     });
 
@@ -74,6 +86,7 @@ $(function () {
         loaderShow(true);
 
         playlist = [];
+        playlist_count = 0;
         songs_array = [];
 
         $.when(getSetlistRequest(val)).then(
@@ -89,6 +102,8 @@ $(function () {
 
                     if(err.status == 404) {
                         renderAlert(err.responseJSON.error);
+                    } else {
+                        renderAlert('Server error. Reload page.');
                     }
                 }
             }
@@ -105,18 +120,34 @@ $(function () {
             },
             function (err) {
                 loaderShow(false);
-                debugger;
+                renderAlert('Server error. Reload page.');
             }
         );
     }
 
-    function getVideoId(song) {
-        $.when(getVideoIdRequest(song)).then(
+    function getVideoId(song, artist) {
+        $.when(getVideoIdRequest(song, artist)).then(
             function (res) {
-                playlist.push(res.videoId);
+
+                console.info(res);
+
+                if (res.hasOwnProperty('items')) {
+                    playlist_count++;
+
+                    if (res.items.length > 0) {
+                        if (res.items[0].hasOwnProperty('id')) {
+                            if (res.items[0].id.hasOwnProperty('videoId')) {
+                                playlist.push(res.items[0].id.videoId);
+                            }
+                        }
+                    }
+                }
+
+                // playlist.push(res.videoId);
             },
             function (err) {
-                debugger;
+                loaderShow(false);
+                renderAlert('Server error. Reload page.');
             }
         );
     }
@@ -141,12 +172,13 @@ $(function () {
         });
     }
 
-    function getVideoIdRequest(song) {
+    function getVideoIdRequest(song, artist) {
         return $.ajax({
             url: '/get-videoId/',
             method: 'GET',
             data: {
-                song: song
+                song: song,
+                artist: artist
             }
         });
     }
@@ -206,22 +238,28 @@ $(function () {
                     if(setlist.artist.hasOwnProperty('@name') && setlist.artist['@name'] != '') {
                         var artist_val = setlist.artist['@name'];
 
-                        artist = '<span><strong>Artist:&nbsp;</strong>'+artist_val+'</span>&nbsp;';
+                        artist = '<span class="artist-name" data-name="'+artist_val+'"><strong>Artist:&nbsp;</strong>'+artist_val+'</span>&nbsp;';
                     }
                 }
+
+                console.info(setlist.sets);
 
                 if(setlist.sets.set.length > 0) {
                     $.each(setlist.sets.set, function (st, set) {
                         if(set.song.length > 0) {
                             $.each(set.song, function (s, sng) {
-                                var name_val = sng['@name'];
+                                var name_val = sng['@name'],
+                                    tape_icon = sng.hasOwnProperty('@tape') ? '<span title="Song played from tape"><i class="material-icons">&#xE0D9;</i></span>' : '',
+                                    cover_text = sng.hasOwnProperty('cover') ? '<span class="cover-song">('+sng.cover["@name"]+' song)</span>' : '';
 
-                                setlist_tmp += '<li data-song="'+name_val+'">'+name_val+'</li>';
+                                setlist_tmp += '<li data-song="'+name_val+'">'+name_val+'&nbsp;'+tape_icon+'&nbsp;'+cover_text+'</li>';
                             });
                         } else {
-                            var name_v = set.song['@name'];
+                            var name_v = set.song['@name'],
+                                tape_icon = set.song.hasOwnProperty('@tape') ? '<span title="Song played from tape"><i class="material-icons">&#xE0D9;</i></span>' : '',
+                                cover_text = set.song.hasOwnProperty('cover') ? '<span class="cover-song">('+set.song.cover["@name"]+' song)</span>' : '';
 
-                            setlist_tmp += '<li data-song="'+name_v+'">'+name_v+'</li>';
+                            setlist_tmp += '<li data-song="'+name_v+'">'+name_v+'&nbsp;'+tape_icon+'&nbsp;'+cover_text+'</li>';
                         }
                     });
 
@@ -233,10 +271,10 @@ $(function () {
                         '' + artist + event_date + tour + '' +
                         '</a>' +
                         '</h4>' +
-                        '<a class="btn btn-danger btn-fab btn-fab-mini pull-right set-list-btn" data-setlist-wrap="#setlist'+setlist_id+'"><i class="material-icons">&#xE038;</i></a>' +
+                        '<a class="btn btn-danger btn-fab btn-fab-mini pull-right set-list-btn" title="Get playlist!" data-setlist-wrap="#setlist'+setlist_id+'"><i class="material-icons">&#xE038;</i></a>' +
                         '</div>';
 
-                    list_tmp = '<div id="setlist'+setlist_id+'" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="heading'+setlist_id+'">' +
+                    list_tmp = '<div id="setlist'+setlist_id+'" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading'+setlist_id+'">' +
                         '<div class="panel-body">' + setlist_tmp + '</div>' +
                         '</div>';
 
@@ -248,9 +286,11 @@ $(function () {
                     if(setlist.sets.hasOwnProperty('set')) {
                         if(setlist.sets.set.song.length > 0) {
                             $.each(setlist.sets.set.song, function (ss, sng) {
-                                var name_val = sng['@name'];
+                                var name_val = sng['@name'],
+                                    tape_icon = sng.hasOwnProperty('@tape') ? '<span title="Song played from tape"><i class="material-icons">&#xE0D9;</i></span>' : '',
+                                    cover_text = sng.hasOwnProperty('cover') ? '<span class="cover-song">('+sng.cover["@name"]+' song)</span>' : '';
 
-                                setlist_tmp += '<li data-song="'+name_val+'">'+name_val+'</li>';
+                                setlist_tmp += '<li data-song="'+name_val+'">'+name_val+'&nbsp;'+tape_icon+'&nbsp;'+cover_text+'</li>';
                             });
 
                             setlist_tmp = '<ol>'+setlist_tmp+'</ol>';
@@ -261,10 +301,10 @@ $(function () {
                                 '' + artist + event_date + tour + '' +
                                 '</a>' +
                                 '</h4>' +
-                                '<a class="btn btn-danger btn-fab btn-fab-mini pull-right set-list-btn" data-setlist-wrap="#setlist'+setlist_id+'"><i class="material-icons">&#xE038;</i></a>' +
+                                '<a class="btn btn-danger btn-fab btn-fab-mini pull-right set-list-btn" title="Get playlist!" data-setlist-wrap="#setlist'+setlist_id+'"><i class="material-icons">&#xE038;</i></a>' +
                                 '</div>';
 
-                            list_tmp = '<div id="setlist'+setlist_id+'" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="heading'+setlist_id+'">' +
+                            list_tmp = '<div id="setlist'+setlist_id+'" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading'+setlist_id+'">' +
                                 '<div class="panel-body">' + setlist_tmp + '</div>' +
                                 '</div>';
 
@@ -283,6 +323,7 @@ $(function () {
 
             songs_array = [];
             playlist = [];
+            playlist_count = 0;
 
             generatePlaylist($(this));
         });
@@ -290,6 +331,8 @@ $(function () {
 
     function generatePlaylist(element) {
         var songs_list_wrap = $(element.data('setlist-wrap')),
+            artist_wrap = $(songs_list_wrap.parent()).find('.artist-name'),
+            artiat_value = artist_wrap.length > 0 ? artist_wrap.data('name') : '',
             song_list_ol = $(songs_list_wrap.find('ol'));
 
         song_list_ol.find('li').each(function () {
@@ -300,7 +343,7 @@ $(function () {
             loaderShow(true);
 
             $.each(songs_array, function (i, song) {
-                getVideoId(song);
+                getVideoId(song, artiat_value);
             });
         }
     }

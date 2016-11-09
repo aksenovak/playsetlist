@@ -2,15 +2,8 @@ var express = require('express'),
     path = require('path'),
     request = require('request'),
     YouTube = require('youtube-node'),
-    // exp_hbs  = require('express-handlebars'),
     app = express(),
-    // hbs = exp_hbs.create({
-    //     defaultLayout: 'main'
-    // }),
     yt_key = 'AIzaSyBJAxhVEZPvj8pkzBPWXwerut3GwRfz3ZY';
-
-// app.engine('handlebars', hbs.engine);
-// app.set('view engine', 'handlebars');
 
 app.set('port', (process.env.PORT || 3000));
 
@@ -34,10 +27,6 @@ app.get('/get-setlist', function (req, res) {
                     var setlists = response_data.setlists.setlist;
 
                     res.send({setlists:setlists});
-
-                    // res.render('parts/searchResult.handlebars', {
-                    //     setlists:setlists,
-                    //     layout:false});
                 }
             } else {
                 if(response.statusCode === 404) {
@@ -51,16 +40,19 @@ app.get('/get-setlist', function (req, res) {
 app.get('/get-videoId', function (req, res) {
     if(req.query.hasOwnProperty('song')) {
         var youtube = new YouTube(),
-            song = req.query.song;
+            song = req.query.song,
+            artist = req.query.artist,
+            query = artist != '' ? (artist + '' + song) : song;
 
         youtube.setKey(yt_key);
 
-        youtube.search(song, 2, function(error, result) {
+        youtube.search(query, 2, function(error, result) {
             if (error) {
-                console.log(error);
+                res.status(401);
             }
             else {
-                res.send({videoId:result.items[0].id.videoId});
+                res.send(result);
+                // res.send({videoId:result.items[0].id.videoId});
             }
         });
     }
@@ -100,14 +92,3 @@ app.get('/get-playlist',  function (req, res) {
 });
 
 app.listen(app.get('port'));
-
-// app.listen(app.get('port'), function() {
-//     console.log('Node app is running on port', app.get('port'));
-// });
-//
-// if (!module.parent) {
-//     var port = process.env.PORT || 3000;
-//     app.listen(port, '0.0.0.0', function(err) {
-//         console.log("Started listening on %s", app.url);
-//     });
-// }

@@ -47,6 +47,7 @@
 #playerWrap a {
     float: right;
     right: 30%;
+    top: 5px;
 }
 
 #alertsWrap {
@@ -66,4 +67,13 @@
 
 .set-list-container .panel-heading > h4 {
     padding: 13px;
+}
+
+.set-list-container .panel-body li span {
+    cursor: default;
+}
+
+.set-list-container .cover-song {
+    color: grey;
+    font-weight: 500;
 }
