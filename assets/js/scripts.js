@@ -4,6 +4,7 @@ $(function () {
         listsWrap = $('#listsWrap'),
         removePlayer = $('#removePlayer'),
         playlist = [],
+        songs_array = [],
         playerWrap = $('#playerWrap');
 
     $(document).ajaxStop(function () {
@@ -73,10 +74,20 @@ $(function () {
         loaderShow(true);
 
         playlist = [];
+        songs_array = [];
 
         $.when(getSetlistRequest(val)).then(
             function (res) {
                 loaderShow(false);
+
+                if(listsWrap.find('a.set-list-btn').length > 0) {
+                    listsWrap.find('a.set-list-btn').each(function () {
+                        $(this).off('click');
+                    });
+                }
+
+                listsWrap.html('');
+
                 renderSetlist(res);
             },
             function (err) {
@@ -169,8 +180,7 @@ $(function () {
 
     function generatePlaylist(element) {
         var songs_list_wrap = $(element.data('setlist-wrap')),
-            song_list_ol = $(songs_list_wrap.find('ol')),
-            songs_array = [];
+            song_list_ol = $(songs_list_wrap.find('ol'));
 
         song_list_ol.find('li').each(function () {
             songs_array.push($(this).data('song'));
