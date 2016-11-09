@@ -242,8 +242,6 @@ $(function () {
                     }
                 }
 
-                console.info(setlist.sets);
-
                 if(setlist.sets.set.length > 0) {
                     $.each(setlist.sets.set, function (st, set) {
                         if(set.song.length > 0) {
