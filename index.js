@@ -100,6 +100,7 @@ app.get('/get-playlist',  function (req, res) {
 
 if (!module.parent) {
     var port = process.env.PORT || 3000;
-    app.listen(port);
-    console.log('Express started on port 3000');
+    app.listen(port, '0.0.0.0', function(err) {
+        console.log("Started listening on %s", app.url);
+    });
 }
